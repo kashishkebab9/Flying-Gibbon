@@ -12,22 +12,50 @@ dt = 0.05
 T = 10
 g = 9.81
 m = 2.0
-damping = 1
+damping = 0.5
+I = 2.0
 
 # Initial state: [theta, theta_dot, phi, phi_dot]
 x = np.array([0.5, 0.0, 0.0, 0.0])  # swing angle, angular velocity, body angle, body angular velocity
 
 # Control inputs: [F1, F2] (thrusts on propellers at either end of the body)
 def control(x, t):
-    return np.array([0.0, 0.0, 0.0])  # constant opposing thrusts for demonstration
+    theta, theta_dot, phi, phi_dot = x
+
+    # Desired behavior
+    theta_des = np.pi
+    theta_dot_des = 0.0
+
+    # PD gains
+    Kp = 20.0
+    Kd = 5.0
+
+    # Desired theta acceleration
+    theta_ddot_des = -Kp * (theta - theta_des) - Kd * (theta_dot - theta_dot_des)
+
+    # Cancel dynamics to solve for Fl + Fr
+    sin_diff = np.sin(theta - phi)
+    if abs(sin_diff) < 1e-3:
+        sin_diff = np.sign(sin_diff) * 1e-3  # avoid divide by zero
+
+    total_thrust = (m / sin_diff) * (theta_ddot_des + g * np.sin(theta) + damping * theta_dot)
+
+    # Split thrusts evenly (assumes symmetric configuration, torque = 0)
+    Fl = total_thrust / 2
+    Fr = total_thrust / 2
+
+    tau = 0.0  # No extra body torque for now
+
+    # return np.array([Fl, Fr, tau])
+    return np.array([0, 0, 0])
 
 # Dynamics function
 def dynamics(x, u):
     theta, theta_dot, phi, phi_dot = x
     Fl, Fr, tau = u
 
-    theta_ddot = -g/L*np.sin(theta) + (1/(m*L)) * np.sin(theta-phi)* Fl + (1/(m*L)) * np.sin(theta-phi)* Fr - damping*theta_dot
-    phi_ddot = -(body_w/2) * Fl + (body_w/2) * Fr
+    theta_ddot = -g*np.sin(theta) + (1/m) * np.sin(theta-phi)* Fl + (1/m) * np.sin(theta-phi)* Fr - damping*theta_dot
+    phi_ddot = -(body_w/2) * Fl + (body_w/2) * Fr  + I * tau
 
     return np.array([theta_dot, theta_ddot, phi_dot, phi_ddot])
 
