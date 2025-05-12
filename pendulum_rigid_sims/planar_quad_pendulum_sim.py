@@ -16,7 +16,7 @@ damping = 0.5
 I = 2.0
 
 # Initial state: [theta, theta_dot, phi, phi_dot]
-x = np.array([0.0, 0.0, 0.0, 0.0])  # swing angle, angular velocity, body angle, body angular velocity
+x = np.array([np.pi/2, 0.0, 0.0, 0.0])  # swing angle, angular velocity, body angle, body angular velocity
 
 # Control inputs: [F1, F2] (thrusts on propellers at either end of the body)
 def control(x, t):
@@ -47,7 +47,7 @@ def control(x, t):
     tau = 0.0  # No extra body torque for now
 
     # return np.array([Fl, Fr, tau])
-    return np.array([0, 0, 2.0])
+    return np.array([0, 0, 0.0])
     
 
 # Dynamics function
