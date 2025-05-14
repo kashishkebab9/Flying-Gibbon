@@ -24,12 +24,12 @@ projectile_path, = ax.plot([], [], '--', color='blue', alpha=0.7)
 time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes)
 status_text = ax.text(0.02, 0.90, '', transform=ax.transAxes)
 
-t_pend, theta_vals, omega_vals, t_release = simulate_pendulum()
+t_pend, theta_vals, omega_vals, phi_values, t_release = simulate_pendulum()
 x_pend = [l * np.sin(theta) for theta in theta_vals]
 y_pend = [-l * np.cos(theta) for theta in theta_vals]
 
 if t_release is not None:
-    release_index = t_pend.index(t_release)
+    release_index = np.argmin(np.abs(t_pend - t_release))
     theta_release_actual = theta_vals[release_index]
     omega_release = omega_vals[release_index]
     t_proj, x_proj, y_proj, theta_proj = simulate_projectile(t_release, theta_release_actual, omega_release)
@@ -40,8 +40,10 @@ def update(frame):
     if frame < len(x_pend):
         x, y = x_pend[frame], y_pend[frame]
         theta = theta_vals[frame]
+        phi = phi_values[frame]
+        
         rod.set_data([0, x], [0, y])
-        transform = tr.Affine2D().rotate_around(x, y, theta) + ax.transData
+        transform = tr.Affine2D().rotate_around(x, y, phi + theta) + ax.transData
         body_rect.set_xy((x - body_w / 2, y - body_h / 2))
         body_rect.set_transform(transform)
         pendulum_path.set_data(x_pend[:frame + 1], y_pend[:frame + 1])
@@ -64,3 +66,4 @@ def update(frame):
 ani = FuncAnimation(fig, update, frames=len(x_pend) + len(x_proj), interval=1000 / fps, blit=True)
 plt.tight_layout()
 plt.show()
+
