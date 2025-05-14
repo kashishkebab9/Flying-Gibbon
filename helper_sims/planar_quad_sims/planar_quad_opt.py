@@ -156,7 +156,7 @@ def planar_quadrotor_arm_optimization(initial_state, target_position, N=10000):
 
 # Initial state: [x, y, theta, x_dot, y_dot, theta_dot, alpha, alpha_dot]
 # MODIFIED: Changed alpha to -np.pi/4 + np.pi/2 to account for new zero position
-initial_state = np.array([0.0, 4.0, -np.pi/4, 6.43, 5.4, 0.0, np.pi/4, 0.0])
+initial_state = np.array([-10.0, 4.0, -np.pi/4, 6.43, 5.4, 0.0, np.pi/4, 0.0])
 
 # Target position for the arm end-effector
 target_position = np.array([10.0, 6.0])

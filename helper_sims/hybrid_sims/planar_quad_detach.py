@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import matplotlib.transforms as tr
 from matplotlib.patches import Rectangle
+import casadi as cs
 
 # Physical Parameters
 g = 9.81  # gravity
@@ -10,6 +11,7 @@ l = 1.0   # pendulum length
 m = 100.0  # pendulum mass
 theta_0 = -3 * np.pi / 4  # initial angle
 theta_release = 0.7       # angle to detach
+theta_release_vel = 10.0  # angular velocity to detach
 body_w = .5
 body_h = 0.2
 
@@ -92,7 +94,6 @@ def pendulum_control(x, t):
 
     # return np.array([0, 0, 0])
     return np.array([Fl, Fr, tau])
-
 
 # Simulate Pendulum 
 def simulate_pendulum():
