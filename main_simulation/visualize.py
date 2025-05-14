@@ -36,6 +36,8 @@ if t_release is not None:
 else:
     t_proj, x_proj, y_proj, theta_proj = [], [], [], []
 
+print(len(x_proj))
+
 def update(frame):
     if frame < len(x_pend):
         x, y = x_pend[frame], y_pend[frame]

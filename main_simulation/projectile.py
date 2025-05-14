@@ -32,8 +32,6 @@ def simulate_projectile(t_release, theta_release, omega_release):
         if y < -1.5 * l:
             break
 
-
-
         # Rotates at constant angular velocity after release
         theta = theta_release + omega_release * dt_rel
 

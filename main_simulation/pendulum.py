@@ -90,7 +90,6 @@ def run_optimization_casadi(x0, xf, N=100, h=0.01):
         return None, None
 
 
-
 def simulate_pendulum():
     X_opt, U_opt = run_optimization_casadi(x0, xf)
 
