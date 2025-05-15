@@ -11,13 +11,15 @@ body_h = 0.2    # body height (m)
 # Initial Conditions
 theta_0 = -3 * np.pi / 4 # initial angle (rad)
 theta_release = np.pi/4       # angle to detach (rad)
-theta_release_vel = 10  # angular velocity to detach (rad/s)
+theta_release_vel = 8  # angular velocity to detach (rad/s)
 phi_release_vel = .2
 phi_0 = 0.0               # initial body angle (rad)
 phi_dot_0 = 0.0           # initial body angular velocity (rad/s)
 x0 = np.array([theta_0, 0.0, phi_0, phi_dot_0])
 xf = np.array([theta_release, theta_release_vel, 1.0, phi_release_vel])
 
+arm_mass = 0.1 # mass of the arm
+arm_I = 1/3 * arm_mass * l**2  # moment of inertia of the arm
 # Pendulum optimization parameters
 damping = 0.1
 T = 4.0
@@ -43,5 +45,5 @@ bounds = state_bounds + control_bounds
 # Simulation Parameters
 fps = 60
 dt = 1 / fps
-total_time = 10.0
+total_time = 20.0
 frames = int(total_time / dt)

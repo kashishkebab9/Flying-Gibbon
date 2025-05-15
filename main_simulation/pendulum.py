@@ -2,20 +2,12 @@ from config import *
 import casadi as ca
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 def pendulum_position(theta):
     x = l * np.sin(theta)
     y = -l * np.cos(theta)
     return x, y
-
-def casadi_dynamics(x, u):
-    theta, theta_dot, phi, phi_dot = x[0], x[1], x[2], x[3]
-    Fl, Fr, tau = u[0], u[1], u[2]
-    sin_diff = ca.sin(theta - phi)
-    theta_ddot = -g * ca.sin(theta) + (1 / m) * sin_diff * (Fl + Fr) - damping * theta_dot
-    phi_ddot = -(body_w / 2) * Fl + (body_w / 2) * Fr + I * tau
-    return ca.vertcat(theta_dot, theta_ddot, phi_dot, phi_ddot)
-
 
 def run_optimization_casadi(x0, xf, N=100, h=0.01):
     opti = ca.Opti()

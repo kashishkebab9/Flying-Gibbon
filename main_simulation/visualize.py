@@ -9,7 +9,7 @@ from matplotlib.animation import FFMpegWriter
 
 fig, ax = plt.subplots(figsize=(10, 8))
 ax.set_xlim(-2.5, 10)
-ax.set_ylim(-4, 6)
+ax.set_ylim(-4, 10)
 ax.set_aspect('equal')
 ax.grid(True)
 ax.set_title("Detachable Pendulum with Rotating Rectangle")
@@ -17,11 +17,12 @@ ax.set_xlabel("x (m)")
 ax.set_ylabel("y (m)")
 
 pivot, = ax.plot(0, 0, 'ko', markersize=8)
+pivot2, = ax.plot(8, 0, 'ko', markersize=8)
 rod, = ax.plot([], [], '-k', lw=2)
-body_rect = Rectangle((0, 0), body_w, body_h, color='blue', alpha=0.7)
+body_rect = Rectangle((0, 0), body_w, body_h, color='gray', alpha=0.7)
 ax.add_patch(body_rect)
 pendulum_path, = ax.plot([], [], '--', color='gray', alpha=0.7)
-projectile_path, = ax.plot([], [], '--', color='blue', alpha=0.7)
+projectile_path, = ax.plot([], [], '--', color='gray', alpha=0.7)
 time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes)
 status_text = ax.text(0.02, 0.90, '', transform=ax.transAxes)
 
