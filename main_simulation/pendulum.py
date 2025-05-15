@@ -106,4 +106,4 @@ def simulate_pendulum():
             t_release = t_values[i]
             break
 
-    return t_values, theta_values, omega_values, phi_values, t_release
+    return t_values, theta_values, omega_values, phi_values, phi_dot_values, t_release

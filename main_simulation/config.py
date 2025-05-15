@@ -9,13 +9,14 @@ body_w = 0.5    # body width (m)
 body_h = 0.2    # body height (m)
 
 # Initial Conditions
-theta_0 = -3 * np.pi / 4  # initial angle (rad)
+theta_0 = -3 * np.pi / 4 # initial angle (rad)
 theta_release = np.pi/4       # angle to detach (rad)
-theta_release_vel = 10.0  # angular velocity to detach (rad/s)
+theta_release_vel = 10  # angular velocity to detach (rad/s)
+phi_release_vel = .2
 phi_0 = 0.0               # initial body angle (rad)
 phi_dot_0 = 0.0           # initial body angular velocity (rad/s)
 x0 = np.array([theta_0, 0.0, phi_0, phi_dot_0])
-xf = np.array([theta_release, theta_release_vel, 0.0, 0.0])
+xf = np.array([theta_release, theta_release_vel, 1.0, phi_release_vel])
 
 # Pendulum optimization parameters
 damping = 0.1
@@ -25,7 +26,7 @@ h = T / N
 nx = 4
 nu = 3
 F_min, F_max = 0.0, 5.0  # Thrust bounds (N)
-tau_min, tau_max = -2.0, 2.0  # Torque bounds (Nm)
+tau_min, tau_max = 0.0, 2.0  # Torque bounds (Nm)
 # No bounds for state variables (None)
 state_bounds = [(None, None)] * (N * nx)
 
