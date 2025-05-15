@@ -17,8 +17,14 @@ def simulate_projectile(t_release, theta_release, omega_release, phi_release_vel
     v_x = v_tan * np.cos(theta_release)
     v_y = v_tan * np.sin(theta_release)
     theta = xf[0] + xf[2]
-    t_values, x_values, y_values, theta_values = [], [], [], []
+    t_values, x_values, y_values, theta_values, alpha_values = [], [], [], [], []
     t = t_release
+
+    pendulum_point = (0,0)
+    dx = x_release - pendulum_point[0]
+    dy = y_release - pendulum_point[1]
+    angle_rad = np.arctan2(dy, dx)
+    final_arm_ang = np.pi/2 + theta - angle_rad
 
 
     while t < total_time:
@@ -30,12 +36,12 @@ def simulate_projectile(t_release, theta_release, omega_release, phi_release_vel
 
         # Rotates at constant angular velocity after release
         theta = theta + phi_release_vel * dt_rel
-        print(phi_release_vel)
 
         t_values.append(t)
         x_values.append(x)
         y_values.append(y)
+        alpha_values.append(final_arm_ang)
         theta_values.append(theta)
         t += dt
 
-    return t_values, x_values, y_values, theta_values
+    return t_values, x_values, y_values, theta_values, alpha_values

@@ -34,7 +34,7 @@ if t_release is not None:
     theta_release_actual = theta_vals[release_index]
     omega_release = omega_vals[release_index]
     phi_release_vel = phi_dot_values[release_index]
-    t_proj, x_proj, y_proj, theta_proj = simulate_projectile(t_release, theta_release_actual, omega_release, phi_release_vel)
+    t_proj, x_proj, y_proj, theta_proj, alpha_values = simulate_projectile(t_release, theta_release_actual, omega_release, phi_release_vel)
 else:
     t_proj, x_proj, y_proj, theta_proj = [], [], [], []
 
@@ -57,7 +57,8 @@ def update(frame):
         if proj_frame < len(x_proj):
             x, y = x_proj[proj_frame], y_proj[proj_frame]
             theta = theta_proj[proj_frame]
-            rod.set_data([-l * np.sin(theta) + x, x], [l * np.cos(theta) + y, y])
+            alpha = alpha_values[proj_frame]
+            rod.set_data([-l * np.sin(theta+np.pi/2 + alpha ) + x, x], [l * np.cos(theta + np.pi/2 + alpha) + y, y])
             transform = tr.Affine2D().rotate_around(x, y, theta) + ax.transData
             body_rect.set_xy((x - body_w / 2, y - body_h / 2))
             body_rect.set_transform(transform)
