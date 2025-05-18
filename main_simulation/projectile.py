@@ -92,8 +92,8 @@ def flight_control(initial_state, target_position, N=1000):
         opti.subject_to(f2[k] <= f_max)
         opti.subject_to(tau_arm[k] >= -tau_max)
         opti.subject_to(tau_arm[k] <= tau_max)
-        opti.subject_to(theta[k] >= theta_min)
-        opti.subject_to(theta[k] <= theta_max)
+        # opti.subject_to(theta[k] >= theta_min)
+        # opti.subject_to(theta[k] <= theta_max)
         opti.subject_to(x[k] <= target_position[0] + l)
 
     # opti.subject_to(alpha[N] <= -np.pi/6)
@@ -130,7 +130,56 @@ def flight_control(initial_state, target_position, N=1000):
         return None, None
 
 
+# def simulate_projectile(t_release, theta_release, omega_release, phi_release_vel):
 
+#     # initialization 
+#     x_release, y_release = pendulum_position(theta_release)
+#     v_tan = l * omega_release
+#     v_x = v_tan * np.cos(theta_release)
+#     v_y = v_tan * np.sin(theta_release)
+#     theta = xf[0] + xf[2]
+#     t_values, x_values, y_values, theta_values, alpha_values = [], [], [], [], []
+#     t = t_release
+
+#     pendulum_point = (0,0)
+#     dx = x_release - pendulum_point[0]
+#     dy = y_release - pendulum_point[1]
+#     angle_rad = np.arctan2(dy, dx)
+#     alpha_release = np.pi/2 + theta - angle_rad
+
+#     initial_state = np.array([x_release, y_release, theta, v_x, v_y, phi_release_vel, alpha_release, 0])
+#     target_position = np.array([8.0, 0.0])
+
+#     X_opt, U_opt = flight_control(initial_state, target_position)
+#     # while t < total_time:
+
+#     #     dt_rel = t - t_release
+#     #     x = x_release + v_x * dt_rel
+#     #     y = y_release + v_y * dt_rel - 0.5 * g * dt_rel**2
+#     #     if y < -1.5 * l:
+#     #         break
+
+#     #     # Rotates at constant angular velocity after release
+#     #     theta = theta + phi_release_vel * dt_rel
+
+#     #     t_values.append(t)
+#     #     x_values.append(x)
+#     #     y_values.append(y)
+#     #     alpha_values.append(alpha_release)
+#     #     theta_values.append(theta)
+#     #     t += dt
+
+#     x_values = X_opt[:, 0]
+#     y_values = X_opt[:, 1]
+#     theta_values = X_opt[:, 2]
+#     dx_values = X_opt[:, 3]
+#     dy_values = X_opt[:, 4]
+#     omega_values = X_opt[:, 5]
+#     alpha_values = X_opt[:, 6]
+#     dalpha_values = X_opt[:, 7]
+#     t_values = np.linspace(0, T, N + 1)
+
+#     return t_values, x_values, y_values, theta_values, alpha_values
 def simulate_projectile(t_release, theta_release, omega_release, phi_release_vel):
     # initialization 
     x_release, y_release = pendulum_position(theta_release)
@@ -147,6 +196,7 @@ def simulate_projectile(t_release, theta_release, omega_release, phi_release_vel
     alpha_release = np.pi/2 + theta - angle_rad
     
     # Set up initial state and target
+    # I think alpha release  and others arent actually being respected by the pendulum solver
     initial_state = np.array([x_release, y_release, theta, v_x, v_y, phi_release_vel, alpha_release, 0])
     target_position = np.array([8.0, 0.0])
     

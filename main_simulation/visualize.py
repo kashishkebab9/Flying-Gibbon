@@ -7,7 +7,7 @@ from pendulum import simulate_pendulum, pendulum_position
 from projectile import simulate_projectile
 from matplotlib.animation import FFMpegWriter
 
-fig, ax = plt.subplots(figsize=(10, 8))
+fig1, ax = plt.subplots(figsize=(10, 8))
 ax.set_xlim(-2.5, 10)
 ax.set_ylim(-4, 10)
 ax.set_aspect('equal')
@@ -59,7 +59,7 @@ def update(frame):
             x, y = x_proj[proj_frame], y_proj[proj_frame]
             theta = theta_proj[proj_frame]
             alpha = alpha_values[proj_frame]
-            rod.set_data([-l * np.sin(theta+np.pi/2 + alpha ) + x, x], [l * np.cos(theta + np.pi/2 + alpha) + y, y])
+            rod.set_data([l * np.sin(theta+ alpha ) + x, x], [-l * np.cos(theta + alpha) + y, y])
             transform = tr.Affine2D().rotate_around(x, y, theta) + ax.transData
             body_rect.set_xy((x - body_w / 2, y - body_h / 2))
             body_rect.set_transform(transform)
@@ -68,9 +68,41 @@ def update(frame):
             status_text.set_text("status: detached")
     return rod, body_rect, pendulum_path, projectile_path, time_text, status_text
 
-writer = FFMpegWriter(fps=int(1 / dt), metadata=dict(artist='Trajectory Opt'), bitrate=1800)
-ani = FuncAnimation(fig, update, frames=len(x_pend) + len(x_proj), interval=1000 / fps, blit=True)
-ani.save("main.mp4", writer=writer)
+# We need to take "theta" in both pendulum and projectile
+orientation_pend = theta_vals + phi_values
+fig3 = plt.figure(figsize=(10, 6))
+plt.plot(t_pend, orientation_pend, 'r-', label='Orientation (Pendulum)')
+plt.xlabel('Time')
+plt.ylabel('Angle (rad)')
+plt.title('Alpha and Theta vs Time')
+plt.legend()
+plt.grid(True)
 plt.tight_layout()
-plt.show()
 
+# Show the plot window without blocking
+plt.show(block=False)
+
+# Create the second figure for the plot (before animation starts)
+fig2 = plt.figure(figsize=(10, 6))
+plt.plot(t_proj, alpha_values, 'r-', label='Alpha (Projectile)')
+plt.plot(t_proj, theta_proj, 'g-', label='Theta (Projectile)')
+plt.xlabel('Time')
+plt.ylabel('Angle (rad)')
+plt.title('Alpha and Theta vs Time')
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+
+# Show the plot window without blocking
+plt.show(block=False)
+
+# Now set up and run the animation
+writer = FFMpegWriter(fps=int(1 / dt), metadata=dict(artist='Trajectory Opt'), bitrate=1800)
+ani = FuncAnimation(fig1, update, frames=len(x_pend) + len(x_proj), interval=1000 / fps, blit=True)
+
+# Save the animation
+ani.save("main.mp4", writer=writer)
+
+# Show the animation window - keep both windows open
+plt.figure(fig1.number)  # Switch back to animation figure
+plt.show()  # This will block and keep both windows open
