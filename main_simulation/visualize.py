@@ -9,7 +9,7 @@ from matplotlib.animation import FFMpegWriter
 
 fig1, ax = plt.subplots(figsize=(10, 8))
 ax.set_xlim(-2.5, 10)
-ax.set_ylim(-4, 10)
+ax.set_ylim(-4, 4)
 ax.set_aspect('equal')
 ax.grid(True)
 ax.set_title("Detachable Pendulum with Rotating Rectangle")
@@ -26,7 +26,7 @@ projectile_path, = ax.plot([], [], '--', color='gray', alpha=0.7)
 time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes)
 status_text = ax.text(0.02, 0.90, '', transform=ax.transAxes)
 
-t_pend, theta_vals, omega_vals, phi_values, phi_dot_values, t_release = simulate_pendulum()
+t_pend, theta_vals, omega_vals, phi_values, phi_dot_values, t_release, pend_u_opt = simulate_pendulum()
 x_pend = [l * np.sin(theta) for theta in theta_vals]
 y_pend = [-l * np.cos(theta) for theta in theta_vals]
 
@@ -35,7 +35,7 @@ if t_release is not None:
     theta_release_actual = theta_vals[release_index]
     omega_release = omega_vals[release_index]
     phi_release_vel = phi_dot_values[release_index]
-    t_proj, x_proj, y_proj, theta_proj, alpha_values = simulate_projectile(t_release, theta_release_actual, omega_release, phi_release_vel)
+    t_proj, x_proj, y_proj, theta_proj, alpha_values, proj_u_opt = simulate_projectile(t_release, theta_release_actual, omega_release, phi_release_vel)
 else:
     t_proj, x_proj, y_proj, theta_proj = [], [], [], []
 
@@ -77,6 +77,8 @@ plt.ylabel('Angle (rad)')
 plt.title('Alpha and Theta vs Time')
 plt.legend()
 plt.grid(True)
+
+
 plt.tight_layout()
 
 # Show the plot window without blocking
@@ -106,3 +108,35 @@ ani.save("main.mp4", writer=writer)
 # Show the animation window - keep both windows open
 plt.figure(fig1.number)  # Switch back to animation figure
 plt.show()  # This will block and keep both windows open
+
+if pend_u_opt is not None:
+    plt.figure()
+    plt.plot(t_pend[:-1], pend_u_opt[:, 0], 'r-', label='F1 (Pendulum)')
+    plt.plot(t_pend[:-1], pend_u_opt[:, 1], 'b-', label='F2 (Pendulum)')
+    plt.plot(t_pend[:-1], pend_u_opt[:, 2], 'g-', label='Tau (Arm)')
+    plt.xlabel("Time (s)")
+    plt.ylabel("Control Input")
+    plt.title("Optimized Control Inputs")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+else:
+    print("Warning: pend_u_opt is None — skipping control input plots.")
+
+
+
+proj_u_opt_trimmed = proj_u_opt[:599, :]
+
+if proj_u_opt is not None:
+    plt.figure()
+    plt.plot(t_proj[:-1], proj_u_opt_trimmed[:, 0], 'r-', label='F1 (Pendulum)')
+    plt.plot(t_proj[:-1], proj_u_opt_trimmed[:, 1], 'b-', label='F2 (Pendulum)')
+    plt.plot(t_proj[:-1], proj_u_opt_trimmed[:, 2], 'g-', label='Tau (Arm)')
+    plt.xlabel("Time (s)")
+    plt.ylabel("Control Input")
+    plt.title("Optimized Control Inputs")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+else:
+    print("Warning: pend_u_opt is None — skipping control input plots.")

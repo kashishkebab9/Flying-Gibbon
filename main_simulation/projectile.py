@@ -71,30 +71,30 @@ def flight_control(initial_state, target_position, N=1000):
     opti.subject_to(arm_end_y == target_position[1])
     
     # Terminal velocity constraints for smooth stopping
-    opti.subject_to(x_dot[N] == 0)
-    opti.subject_to(y_dot[N] == 0)
+    # opti.subject_to(x_dot[N] == 0)
+    # opti.subject_to(y_dot[N] == 0)
     # opti.subject_to(theta_dot[N] == 0)
     # opti.subject_to(alpha_dot[N] == 0)
 
     # Prevent Crazy flips
-    theta_min = -np.pi/2
-    theta_max = np.pi/2
+    # theta_min = -np.pi/2
+    # theta_max = np.pi/2
 
     # Control constraints
-    f_min = -20.0     # Minimum thrust (can't push)
-    f_max = 20.0    # Maximum thrust
-    tau_max = 10.0   # Maximum arm torque
+    # f_min = -20.0     # Minimum thrust (can't push)
+    # f_max = 20.0    # Maximum thrust
+    # tau_max = 10.0   # Maximum arm torque
     
-    for k in range(N):
-        opti.subject_to(f1[k] >= f_min)
-        opti.subject_to(f1[k] <= f_max)
-        opti.subject_to(f2[k] >= f_min)
-        opti.subject_to(f2[k] <= f_max)
-        opti.subject_to(tau_arm[k] >= -tau_max)
-        opti.subject_to(tau_arm[k] <= tau_max)
-        # opti.subject_to(theta[k] >= theta_min)
-        # opti.subject_to(theta[k] <= theta_max)
-        opti.subject_to(x[k] <= target_position[0] + l)
+    # for k in range(N):
+    #     opti.subject_to(f1[k] >= f_min)
+    #     opti.subject_to(f1[k] <= f_max)
+    #     opti.subject_to(f2[k] >= f_min)
+    #     opti.subject_to(f2[k] <= f_max)
+    #     opti.subject_to(tau_arm[k] >= -tau_max)
+    #     opti.subject_to(tau_arm[k] <= tau_max)
+    #     # opti.subject_to(theta[k] >= theta_min)
+    #     # opti.subject_to(theta[k] <= theta_max)
+    #     opti.subject_to(x[k] <= target_position[0] + l)
 
     # opti.subject_to(alpha[N] <= -np.pi/6)
     # opti.subject_to(alpha[N] >= -np.pi/3)
@@ -105,13 +105,14 @@ def flight_control(initial_state, target_position, N=1000):
 
     # Objective: minimize control effort
     objective = 0
-    for k in range(N):
-        total_thrust = f1[k] + f2[k]
-        upward_thrust_component = total_thrust * cs.cos(theta[k])
-        objective += 10* upward_thrust_component + 5* f1[k]**2 + 5 * f2[k]**2 + 2 * tau_arm[k]**2
-        if k > 0:
-            height_decrease = cs.fmax(0, y[k-1] - y[k])  # Positive when descending
-            objective -= 20 * height_decrease
+    objective += (arm_end_x - target_position[0]) ** 2 
+    objective += (arm_end_y - target_position[1]) ** 2 
+    # for k in range(N):
+    #     total_thrust = f1[k] + f2[k]
+    #     upward_thrust_component = total_thrust * cs.cos(theta[k])
+        # if k > 0:
+        #     height_decrease = cs.fmax(0, y[k-1] - y[k])  # Positive when descending
+        #     objective -= 20 * height_decrease
     
     opti.minimize(objective)
     
@@ -129,57 +130,6 @@ def flight_control(initial_state, target_position, N=1000):
         print("Optimization failed. Check constraints and initial conditions.")
         return None, None
 
-
-# def simulate_projectile(t_release, theta_release, omega_release, phi_release_vel):
-
-#     # initialization 
-#     x_release, y_release = pendulum_position(theta_release)
-#     v_tan = l * omega_release
-#     v_x = v_tan * np.cos(theta_release)
-#     v_y = v_tan * np.sin(theta_release)
-#     theta = xf[0] + xf[2]
-#     t_values, x_values, y_values, theta_values, alpha_values = [], [], [], [], []
-#     t = t_release
-
-#     pendulum_point = (0,0)
-#     dx = x_release - pendulum_point[0]
-#     dy = y_release - pendulum_point[1]
-#     angle_rad = np.arctan2(dy, dx)
-#     alpha_release = np.pi/2 + theta - angle_rad
-
-#     initial_state = np.array([x_release, y_release, theta, v_x, v_y, phi_release_vel, alpha_release, 0])
-#     target_position = np.array([8.0, 0.0])
-
-#     X_opt, U_opt = flight_control(initial_state, target_position)
-#     # while t < total_time:
-
-#     #     dt_rel = t - t_release
-#     #     x = x_release + v_x * dt_rel
-#     #     y = y_release + v_y * dt_rel - 0.5 * g * dt_rel**2
-#     #     if y < -1.5 * l:
-#     #         break
-
-#     #     # Rotates at constant angular velocity after release
-#     #     theta = theta + phi_release_vel * dt_rel
-
-#     #     t_values.append(t)
-#     #     x_values.append(x)
-#     #     y_values.append(y)
-#     #     alpha_values.append(alpha_release)
-#     #     theta_values.append(theta)
-#     #     t += dt
-
-#     x_values = X_opt[:, 0]
-#     y_values = X_opt[:, 1]
-#     theta_values = X_opt[:, 2]
-#     dx_values = X_opt[:, 3]
-#     dy_values = X_opt[:, 4]
-#     omega_values = X_opt[:, 5]
-#     alpha_values = X_opt[:, 6]
-#     dalpha_values = X_opt[:, 7]
-#     t_values = np.linspace(0, T, N + 1)
-
-#     return t_values, x_values, y_values, theta_values, alpha_values
 def simulate_projectile(t_release, theta_release, omega_release, phi_release_vel):
     # initialization 
     x_release, y_release = pendulum_position(theta_release)
@@ -233,4 +183,4 @@ def simulate_projectile(t_release, theta_release, omega_release, phi_release_vel
         if y < -1.5 * l or t > t_release + 10.0:  # 10 seconds max simulation time
             break
     
-    return t_values, x_values, y_values, theta_values, alpha_values
+    return t_values, x_values, y_values, theta_values, alpha_values, controls

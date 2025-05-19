@@ -45,5 +45,5 @@ bounds = state_bounds + control_bounds
 # Simulation Parameters
 fps = 60
 dt = 1 / fps
-total_time = 20.0
+total_time = 8.0
 frames = int(total_time / dt)
