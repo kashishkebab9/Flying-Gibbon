@@ -7,7 +7,7 @@ def pendulum_position(theta):
     y = -l * np.cos(theta)
     return x, y
 
-def flight_control(initial_state, target_position, N=1000):
+def flight_control(initial_state, target_position, N=frames):
     # Create an optimization problem
     opti = cs.Opti()
     
@@ -17,9 +17,16 @@ def flight_control(initial_state, target_position, N=1000):
     # Control dimensions: [f1, f2, tau_arm]
     nu = 3
     
+    T = opti.variable()
     # Optimization variables
     X = opti.variable(nx, N+1)  # State trajectory
     U = opti.variable(nu, N)    # Control trajectory
+
+    opti.subject_to(T>=0.5)
+    opti.subject_to(T<=8.0)
+
+    h = T/N
+    fps = h
     
     # Unpack states for better readability
     x = X[0, :]
@@ -52,14 +59,14 @@ def flight_control(initial_state, target_position, N=1000):
         alpha_ddot = tau_arm[k] / arm_I
         
         # Euler integration
-        opti.subject_to(X[0, k+1] == x[k] + dt * x_dot[k])
-        opti.subject_to(X[1, k+1] == y[k] + dt * y_dot[k])
-        opti.subject_to(X[2, k+1] == theta[k] + dt * theta_dot[k])
-        opti.subject_to(X[3, k+1] == x_dot[k] + dt * x_ddot)
-        opti.subject_to(X[4, k+1] == y_dot[k] + dt * y_ddot)
-        opti.subject_to(X[5, k+1] == theta_dot[k] + dt * theta_ddot)
-        opti.subject_to(X[6, k+1] == alpha[k] + dt * alpha_dot[k])
-        opti.subject_to(X[7, k+1] == alpha_dot[k] + dt * alpha_ddot)
+        opti.subject_to(X[0, k+1] == x[k] + h * x_dot[k])
+        opti.subject_to(X[1, k+1] == y[k] + h * y_dot[k])
+        opti.subject_to(X[2, k+1] == theta[k] + h * theta_dot[k])
+        opti.subject_to(X[3, k+1] == x_dot[k] + h * x_ddot)
+        opti.subject_to(X[4, k+1] == y_dot[k] + h * y_ddot)
+        opti.subject_to(X[5, k+1] == theta_dot[k] + h * theta_ddot)
+        opti.subject_to(X[6, k+1] == alpha[k] + h * alpha_dot[k])
+        opti.subject_to(X[7, k+1] == alpha_dot[k] + h * alpha_ddot)
 
     
     # Compute arm end position at final time - MODIFIED: alpha=0 means upright
@@ -72,18 +79,18 @@ def flight_control(initial_state, target_position, N=1000):
     
     # Terminal velocity constraints for smooth stopping
     # opti.subject_to(x_dot[N] == 0)
-    # opti.subject_to(y_dot[N] == 0)
-    # opti.subject_to(theta_dot[N] == 0)
-    # opti.subject_to(alpha_dot[N] == 0)
+    opti.subject_to(y_dot[N] == 0)
+    opti.subject_to(theta_dot[N] == 0)
+    opti.subject_to(alpha_dot[N] == 0)
 
     # Prevent Crazy flips
-    # theta_min = -np.pi/2
-    # theta_max = np.pi/2
+    theta_min = -np.pi/2
+    theta_max = np.pi/2
 
     # Control constraints
-    # f_min = -20.0     # Minimum thrust (can't push)
-    # f_max = 20.0    # Maximum thrust
-    # tau_max = 10.0   # Maximum arm torque
+    f_min = 0.0     # Minimum thrust (can't push)
+    f_max = 10.0    # Maximum thrust
+    tau_max = 10.0   # Maximum arm torque
     
     # for k in range(N):
     #     opti.subject_to(f1[k] >= f_min)
@@ -92,8 +99,11 @@ def flight_control(initial_state, target_position, N=1000):
     #     opti.subject_to(f2[k] <= f_max)
     #     opti.subject_to(tau_arm[k] >= -tau_max)
     #     opti.subject_to(tau_arm[k] <= tau_max)
-    #     # opti.subject_to(theta[k] >= theta_min)
-    #     # opti.subject_to(theta[k] <= theta_max)
+    #     opti.subject_to(x[k] <= target_position[0])
+    #     opti.subject_to(theta[k] >= theta_min)
+    #     opti.subject_to(theta[k] <= theta_max)
+    #     opti.subject_to(alpha[k] >= -np.pi/2)
+    #     opti.subject_to(alpha[k] <= np.pi/2)
     #     opti.subject_to(x[k] <= target_position[0] + l)
 
     # opti.subject_to(alpha[N] <= -np.pi/6)
@@ -105,30 +115,38 @@ def flight_control(initial_state, target_position, N=1000):
 
     # Objective: minimize control effort
     objective = 0
+    objective += 1.0 * (T)  # Encourage shorter flight
     objective += (arm_end_x - target_position[0]) ** 2 
     objective += (arm_end_y - target_position[1]) ** 2 
+    # objective +=  (x_dot[N] - 1) ** 2 
+    objective +=  (y_dot[N]) ** 2 
     # for k in range(N):
     #     total_thrust = f1[k] + f2[k]
     #     upward_thrust_component = total_thrust * cs.cos(theta[k])
-        # if k > 0:
-        #     height_decrease = cs.fmax(0, y[k-1] - y[k])  # Positive when descending
-        #     objective -= 20 * height_decrease
+    #     objective += f1[k] ** 2
+    #     objective += f2[k] ** 2
+    #     objective += tau_arm[k] ** 2
+    #     if k > 0:
+    #         height_decrease = cs.fmax(0, y[k-1] - y[k])  # Positive when descending
+    #         objective -= 20 * height_decrease
     
     opti.minimize(objective)
     
     # Solver options
     opts = {"ipopt.print_level": 3, "print_time": True}
     opti.solver('ipopt', opts)
+
     
     # Solve the optimization problem
     try:
         sol = opti.solve()
         X_opt = sol.value(X)
         U_opt = sol.value(U)
-        return X_opt, U_opt
+        T_opt = sol.value(T)
+        return X_opt, U_opt, T_opt
     except:
         print("Optimization failed. Check constraints and initial conditions.")
-        return None, None
+        return None, None, None
 
 def simulate_projectile(t_release, theta_release, omega_release, phi_release_vel):
     # initialization 
@@ -148,10 +166,10 @@ def simulate_projectile(t_release, theta_release, omega_release, phi_release_vel
     # Set up initial state and target
     # I think alpha release  and others arent actually being respected by the pendulum solver
     initial_state = np.array([x_release, y_release, theta, v_x, v_y, phi_release_vel, alpha_release, 0])
-    target_position = np.array([8.0, 0.0])
+    target_position = np.array([15.0, 0.0])
     
     # Get optimal trajectory
-    X_opt, U_opt = flight_control(initial_state, target_position)
+    X_opt, U_opt, T_opt = flight_control(initial_state, target_position)
     
     # Check if optimization was successful
     if X_opt is None or U_opt is None:
@@ -177,10 +195,10 @@ def simulate_projectile(t_release, theta_release, omega_release, phi_release_vel
         theta_values.append(th)
         alpha_values.append(alpha)
         
-        t += dt
+        t += h
         
         # Optional: Break if we hit the ground or go too far
         if y < -1.5 * l or t > t_release + 10.0:  # 10 seconds max simulation time
             break
     
-    return t_values, x_values, y_values, theta_values, alpha_values, controls
+    return t_values, x_values, y_values, theta_values, alpha_values, controls, T_opt

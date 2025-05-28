@@ -8,7 +8,7 @@ from projectile import simulate_projectile
 from matplotlib.animation import FFMpegWriter
 
 fig1, ax = plt.subplots(figsize=(10, 8))
-ax.set_xlim(-2.5, 10)
+ax.set_xlim(-2.5, 30)
 ax.set_ylim(-4, 4)
 ax.set_aspect('equal')
 ax.grid(True)
@@ -17,7 +17,7 @@ ax.set_xlabel("x (m)")
 ax.set_ylabel("y (m)")
 
 pivot, = ax.plot(0, 0, 'ko', markersize=8)
-pivot2, = ax.plot(8, 0, 'ko', markersize=8)
+pivot2, = ax.plot(15, 0, 'ko', markersize=8)
 rod, = ax.plot([], [], '-k', lw=2)
 body_rect = Rectangle((0, 0), body_w, body_h, color='gray', alpha=0.7)
 ax.add_patch(body_rect)
@@ -35,7 +35,7 @@ if t_release is not None:
     theta_release_actual = theta_vals[release_index]
     omega_release = omega_vals[release_index]
     phi_release_vel = phi_dot_values[release_index]
-    t_proj, x_proj, y_proj, theta_proj, alpha_values, proj_u_opt = simulate_projectile(t_release, theta_release_actual, omega_release, phi_release_vel)
+    t_proj, x_proj, y_proj, theta_proj, alpha_values, proj_u_opt, proj_t_opt = simulate_projectile(t_release, theta_release_actual, omega_release, phi_release_vel)
 else:
     t_proj, x_proj, y_proj, theta_proj = [], [], [], []
 
@@ -100,7 +100,8 @@ plt.show(block=False)
 
 # Now set up and run the animation
 writer = FFMpegWriter(fps=int(1 / dt), metadata=dict(artist='Trajectory Opt'), bitrate=1800)
-ani = FuncAnimation(fig1, update, frames=len(x_pend) + len(x_proj), interval=1000 / fps, blit=True)
+# ani = FuncAnimation(fig1, update, frames=len(x_pend) + len(x_proj), interval=1000*(proj_t_opt/N), blit=True)
+ani = FuncAnimation(fig1, update, frames=len(x_pend) + len(x_proj), interval=1000*(pend_t_opt + proj_t_opt)/frames), blit=True)
 
 # Save the animation
 ani.save("main.mp4", writer=writer)

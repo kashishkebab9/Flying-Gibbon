@@ -1,0 +1,43 @@
+visualization_parameters:
+  x_min: -2.5
+  x_max: 15
+  y_min: -4
+  y_max: 4
+
+physical_parameters:
+  gravity: 9.81                # m/s^2
+  pendulum_length: 1.0         # m
+  pendulum_mass: 1.0           # kg
+  moment_of_inertia_body: 2.0  # kg·m²
+  body_width: 0.5              # m
+  body_height: 0.2             # m
+  arm_mass: 0.1                # kg
+  arm_inertia: 0.0333          # kg·m² (1/3 * arm_mass * length²)
+  pendulum_hinge_array:
+    - [0, 0]
+    - [10, 0]
+
+boundary_conditions:
+  initial_state: [0.0, 0.0, 0.0, 0.0] # Theta, theta_dot, phi, phi_dot
+  release_state: [.7854, 5.0, 1.0, 0.2]
+
+pendulum_optimization:
+  damping: 0.1
+  state_dimension: 4
+  control_dimension: 3
+  control_bounds:
+    force_rotor: [0.0, 10.0]     # N
+    torque: [0.0, 2.0]         # Nm
+  state_bounds: null           # No bounds on state
+
+flight_optimization:
+  state_dimension: 4
+  control_dimension: 3
+  control_bounds:
+    force_rotor: [0.0, 5.0]     # N
+    torque: [0.0, 2.0]         # Nm
+  state_bounds: null           # No bounds on state
+
+simulation_parameters:
+  fps: 100
+  dt: 0.01                  # 1/100

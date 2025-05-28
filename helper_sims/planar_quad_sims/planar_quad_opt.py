@@ -234,7 +234,7 @@ def update(frame):
     
     return quad_line, arm_line, target_point, traj_line
 
-ani = FuncAnimation(fig, update, frames=N, init_func=init, blit=True, interval=dt*1000)
+ani = FuncAnimation(fig, update, frames=N, init_func=init, blit=True, interval=N/fps)
 
 # Plot controls
 fig_controls, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
