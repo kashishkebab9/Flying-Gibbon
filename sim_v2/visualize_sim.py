@@ -62,6 +62,10 @@ def visualize_simulation(filename, traj_output=None):
         omega_release = omega_vals[release_index]
         phi_release_vel = phi_dot_values[release_index]
         t_proj, x_proj, y_proj, theta_proj, alpha_values, proj_u_opt, proj_t_opt = simulate_projectile(t_release)
+        print(x_proj[-1])
+        print(y_proj[-1])
+        print(alpha_values[-1])
+        print(theta_proj[-1])
     else:
         t_proj, x_proj, y_proj, theta_proj = [], [], [], []
 
@@ -85,7 +89,7 @@ def visualize_simulation(filename, traj_output=None):
                 x, y = x_proj[proj_frame], y_proj[proj_frame]
                 theta = theta_proj[proj_frame]
                 alpha = alpha_values[proj_frame]
-                rod.set_data([config_l * np.sin(theta+ alpha ) + x, x], [-config_l * np.cos(theta + alpha) + y, y])
+                rod.set_data([config_l * np.sin(theta+ alpha) + x, x], [-config_l * np.cos(theta + alpha) + y, y])
                 transform = tr.Affine2D().rotate_around(x, y, theta) + ax.transData
                 body_rect.set_xy((x - config_body_w / 2, y - config_body_h / 2))
                 body_rect.set_transform(transform)

@@ -70,8 +70,8 @@ def flight_control(initial_state, target_position, N=frames):
 
     
     # Compute arm end position at final time - MODIFIED: alpha=0 means upright
-    arm_end_x = x[N] + l * cs.cos(theta[N] + alpha[N] + cs.pi/2)
-    arm_end_y = y[N] + l * cs.sin(theta[N] + alpha[N] + cs.pi/2)
+    arm_end_x = x[N] + l * cs.sin(theta[N] + alpha[N] + cs.pi/2)
+    arm_end_y = y[N] + l * cs.cos(theta[N] + alpha[N] + cs.pi/2)
     
     # Terminal constraints: arm position reaches target
     opti.subject_to(arm_end_x == target_position[0])

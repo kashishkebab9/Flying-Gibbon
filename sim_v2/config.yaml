@@ -5,6 +5,7 @@ visualization_parameters:
   y_max: 4
 
 physical_parameters:
+  dynamics_rate: 0.01
   gravity: 9.81                # m/s^2
   pendulum_length: 1.0         # m
   body_mass: 1.0           # kg
@@ -19,7 +20,7 @@ physical_parameters:
 
 boundary_conditions:
   initial_state: [0.0, 0.0, 0.0, 0.0] # Theta, theta_dot, phi, phi_dot
-  release_state: [.7854, 5.0, 1.0, 0.2]
+  release_state: [.7854, 6.0, 1.0, 0.2]
 
 pendulum_optimization:
   damping: 0.1

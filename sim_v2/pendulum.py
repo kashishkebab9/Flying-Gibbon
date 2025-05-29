@@ -89,7 +89,7 @@ def pendulum_solve_traj(x0, xf, h=0.01, T_max=2.0, config_file="config.yaml"):
         X_opt = sol.value(X).T
         U_opt = sol.value(U).T
         T_opt = sol.value(T)
-        # N = T_opt/h
+        # N = int(T_opt/h)
         return X_opt, U_opt, T_opt, N
     except RuntimeError:
         print("Optimization failed.")
