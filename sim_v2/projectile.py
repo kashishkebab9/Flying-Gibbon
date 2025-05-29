@@ -82,14 +82,13 @@ def flight_control(x0, xf, N=500, T_max=10.0, config_file="config.yaml"):
     arm_end_x = x[N] + l * cs.sin(theta[N] + alpha[N])
     arm_end_y = y[N] - l * cs.cos(theta[N] + alpha[N])
 
-    print(arm_end_x)
-    print(arm_end_y)
     # Terminal constraints: arm position reaches target
     opti.subject_to(arm_end_x == 10)
     opti.subject_to(arm_end_y == 0)
+    opti.subject_to(x[N] <= 10)
     
     # Terminal velocity constraints for smooth stopping
-    # opti.subject_to(x_dot[N] == 0)
+    opti.subject_to(x_dot[N] == 0)
     opti.subject_to(y_dot[N] == 0)
     # opti.subject_to(theta_dot[N] == 0)
     opti.subject_to(alpha_dot[N] == 0)
@@ -99,7 +98,7 @@ def flight_control(x0, xf, N=500, T_max=10.0, config_file="config.yaml"):
     theta_max = np.pi/2
 
     # Control constraints
-    f_min = 0.0     # Minimum thrust (can't push)
+    f_min = -10.0     # Minimum thrust (can't push)
     f_max = 10.0    # Maximum thrust
     tau_max = 10.0   # Maximum arm torque
     
@@ -113,8 +112,8 @@ def flight_control(x0, xf, N=500, T_max=10.0, config_file="config.yaml"):
     #     opti.subject_to(x[k] <= xf[0])
     #     opti.subject_to(theta[k] >= theta_min)
     #     opti.subject_to(theta[k] <= theta_max)
-        # opti.subject_to(alpha[k] >= -np.pi/2)
-        # opti.subject_to(alpha[k] <= np.pi/2)
+    #     opti.subject_to(alpha[k] >= -np.pi/2)
+    #     opti.subject_to(alpha[k] <= np.pi/2)
     #     opti.subject_to(x[k] <= xf[0] + l)
 
     opti.subject_to(alpha[N] <= -np.pi/6)

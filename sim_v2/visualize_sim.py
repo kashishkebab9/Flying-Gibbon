@@ -69,6 +69,15 @@ def visualize_simulation(filename, traj_output=None):
     else:
         t_proj, x_proj, y_proj, theta_proj = [], [], [], []
 
+    control_output = np.vstack((pend_u_opt, proj_u_opt))
+    time_output = np.concatenate((t_pend, t_proj))
+
+    print(control_output.shape)
+    print(time_output.shape)
+    min_len = min(control_output.shape[0], time_output.shape[0])
+    control_output = control_output[:min_len]
+    time_output = time_output[:min_len]
+
 
     def update(frame):
         if frame < len(x_pend):
@@ -99,9 +108,21 @@ def visualize_simulation(filename, traj_output=None):
         return rod, body_rect, pendulum_path, projectile_path, time_text, status_text
 
     ani = FuncAnimation(fig1, update, frames=len(x_pend)+len(x_proj), interval=1000*dt, blit=True)
+
+    # Plot control inputs over time
+    fig2, ax2 = plt.subplots(figsize=(10, 6))
+    labels = ["Left_Rotor", "Right_Rotor", "Torque_Arm"]
+    for i in range(control_output.shape[1]):
+        ax2.plot(time_output, control_output[:, i], label=labels[i])
+
+    ax2.set_title("Control Inputs vs Time")
+    ax2.set_xlabel("Time (s)")
+    ax2.set_ylabel("Control Inputs")
+    ax2.grid(True)
+    ax2.legend()
+
     plt.figure(fig1.number)
     plt.show()
-
 
 if __name__=="__main__":
     visualize_simulation("config.yaml")

@@ -35,7 +35,7 @@ flight_optimization:
   state_dimension: 8
   control_dimension: 3
   control_bounds:
-    force_rotor: [0.0, 5.0]     # N
+    force_rotor: [0.0, 10.0]     # N
     torque: [0.0, 2.0]         # Nm
   state_bounds: null           # No bounds on state
 
