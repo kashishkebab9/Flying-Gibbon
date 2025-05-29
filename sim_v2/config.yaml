@@ -7,7 +7,7 @@ visualization_parameters:
 physical_parameters:
   gravity: 9.81                # m/s^2
   pendulum_length: 1.0         # m
-  pendulum_mass: 1.0           # kg
+  body_mass: 1.0           # kg
   moment_of_inertia_body: 2.0  # kg·m²
   body_width: 0.5              # m
   body_height: 0.2             # m
@@ -31,7 +31,7 @@ pendulum_optimization:
   state_bounds: null           # No bounds on state
 
 flight_optimization:
-  state_dimension: 4
+  state_dimension: 8
   control_dimension: 3
   control_bounds:
     force_rotor: [0.0, 5.0]     # N

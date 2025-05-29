@@ -8,7 +8,6 @@ def load_config(filename="config.yaml"):
         config = yaml.safe_load(file)
     return config
 
-
 def pendulum_solve_traj(x0, xf, h=0.01, T_max=2.0, config_file="config.yaml"):
     config = load_config(config_file)
     
@@ -21,7 +20,7 @@ def pendulum_solve_traj(x0, xf, h=0.01, T_max=2.0, config_file="config.yaml"):
     body_w = config["physical_parameters"]["body_width"]
     g = config["physical_parameters"]["gravity"]
     I = config["physical_parameters"]["moment_of_inertia_body"]
-    m = config["physical_parameters"]["pendulum_mass"]
+    m = config["physical_parameters"]["body_mass"]
 
     # Decision variables
     T = opti.variable()
@@ -30,7 +29,7 @@ def pendulum_solve_traj(x0, xf, h=0.01, T_max=2.0, config_file="config.yaml"):
     U = opti.variable(nu, N)       # control trajectory
 
     opti.subject_to(T>=0.5)
-    opti.subject_to(T<=5.0)
+    opti.subject_to(T<=T_max)
 
     # Unpack states 
     theta = X[0, :]
