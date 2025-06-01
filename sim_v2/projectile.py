@@ -99,16 +99,16 @@ def flight_control(x0, xf, N=200, T_max=10.0, config_file="config.yaml"):
 
     # Control constraints
     f_min = 0.0     # Minimum thrust (can't push)
-    f_max = 10.0    # Maximum thrust
-    tau_max = 2.0   # Maximum arm torque
+    f_max = 15.0    # Maximum thrust
+    tau_max = 5.0   # Maximum arm torque
     
     for k in range(N):
         opti.subject_to(y[k] >= -2.0)
         opti.subject_to(x[k] <= 10.0)
-    #     opti.subject_to(f1[k] >= f_min)
-    #     opti.subject_to(f1[k] <= f_max)
-    #     opti.subject_to(f2[k] >= f_min)
-    #     opti.subject_to(f2[k] <= f_max)
+        opti.subject_to(f1[k] >= f_min)
+        opti.subject_to(f1[k] <= f_max)
+        opti.subject_to(f2[k] >= f_min)
+        opti.subject_to(f2[k] <= f_max)
     #     opti.subject_to(tau_arm[k] >= -tau_max)
     #     opti.subject_to(tau_arm[k] <= tau_max)
     #     opti.subject_to(x[k] <= xf[0])
@@ -154,18 +154,25 @@ def flight_control(x0, xf, N=200, T_max=10.0, config_file="config.yaml"):
         sys.exit()
         return None, None, None
 
-def simulate_projectile(t_release, config_file="config.yaml"):
+def simulate_projectile(t_release, config_file="config.yaml", release_state=None):
     config = load_config(config_file)
     
     # Load physical parameters
     l = config["physical_parameters"]["pendulum_length"]
     dt_zoh = config["physical_parameters"]["dynamics_rate"]  # fixed sampling interval
 
-    release_state = config["boundary_conditions"]["release_state"]
-    theta_release = release_state[0]
-    theta_dot_release = release_state[1]
-    phi_release = release_state[2]
-    phi_dot_release = release_state[3]
+    if release_state == None:
+        release_state = config["boundary_conditions"]["release_state"]
+        theta_release = release_state[0]
+        theta_dot_release = release_state[1]
+        phi_release = release_state[2]
+        phi_dot_release = release_state[3]
+    else:
+        theta_release = release_state[0]
+        theta_dot_release = release_state[1]
+        phi_release = release_state[2]
+        phi_dot_release = release_state[3]
+
     
     # Initial conditions
     x_release, y_release = pendulum_position(theta_release)
