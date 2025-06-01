@@ -117,5 +117,6 @@ def simulate_pendulum(config_file="config.yaml"):
             break
     print(theta_values[-1])
     print(phi_values[-1])
+    print(f"T_release : {t_release}")
 
     return t_values, theta_values, omega_values, phi_values, phi_dot_values, t_release, U_opt

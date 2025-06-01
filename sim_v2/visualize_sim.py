@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 import sys
 from pendulum import simulate_pendulum
 from projectile import simulate_projectile
-
 import numpy as np
 from matplotlib.patches import Rectangle
 import matplotlib.transforms as tr
 from matplotlib.animation import FuncAnimation
+from matplotlib.animation import FFMpegWriter
 
 def visualize_simulation(filename, traj_output=None):
     # Load the YAML file
@@ -107,7 +107,9 @@ def visualize_simulation(filename, traj_output=None):
                 status_text.set_text("status: detached")
         return rod, body_rect, pendulum_path, projectile_path, time_text, status_text
 
+    writer = FFMpegWriter(fps=int(1 / dt), metadata=dict(artist='Trajectory Opt'), bitrate=1800)
     ani = FuncAnimation(fig1, update, frames=len(x_pend)+len(x_proj), interval=1000*dt, blit=True)
+    # ani.save("main.mp4", writer=writer)
 
     # Plot control inputs over time
     fig2, ax2 = plt.subplots(figsize=(10, 6))

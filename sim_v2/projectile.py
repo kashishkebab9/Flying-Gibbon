@@ -15,7 +15,7 @@ def pendulum_position(theta, config_file="config.yaml"):
     y = -l * np.cos(theta)
     return x, y
 
-def flight_control(x0, xf, N=500, T_max=10.0, config_file="config.yaml"):
+def flight_control(x0, xf, N=200, T_max=10.0, config_file="config.yaml"):
     # Create an optimization problem
     config = load_config(config_file)
     opti = cs.Opti()
@@ -88,21 +88,23 @@ def flight_control(x0, xf, N=500, T_max=10.0, config_file="config.yaml"):
     opti.subject_to(x[N] <= 10)
     
     # Terminal velocity constraints for smooth stopping
-    opti.subject_to(x_dot[N] == 0)
+    opti.subject_to(x_dot[N] <= 4)
     opti.subject_to(y_dot[N] == 0)
     # opti.subject_to(theta_dot[N] == 0)
-    opti.subject_to(alpha_dot[N] == 0)
+    # opti.subject_to(alpha_dot[N] == 0)
 
     # Prevent Crazy flips
     theta_min = -np.pi/2
     theta_max = np.pi/2
 
     # Control constraints
-    f_min = -10.0     # Minimum thrust (can't push)
+    f_min = 0.0     # Minimum thrust (can't push)
     f_max = 10.0    # Maximum thrust
-    tau_max = 10.0   # Maximum arm torque
+    tau_max = 2.0   # Maximum arm torque
     
-    # for k in range(N):
+    for k in range(N):
+        opti.subject_to(y[k] >= -2.0)
+        opti.subject_to(x[k] <= 10.0)
     #     opti.subject_to(f1[k] >= f_min)
     #     opti.subject_to(f1[k] <= f_max)
     #     opti.subject_to(f2[k] >= f_min)
@@ -112,21 +114,23 @@ def flight_control(x0, xf, N=500, T_max=10.0, config_file="config.yaml"):
     #     opti.subject_to(x[k] <= xf[0])
     #     opti.subject_to(theta[k] >= theta_min)
     #     opti.subject_to(theta[k] <= theta_max)
-    #     opti.subject_to(alpha[k] >= -np.pi/2)
-    #     opti.subject_to(alpha[k] <= np.pi/2)
+        # opti.subject_to(alpha[k] >= -cs.pi/2)
+        # opti.subject_to(alpha[k] <= cs.pi/2)
     #     opti.subject_to(x[k] <= xf[0] + l)
+    opti.subject_to(alpha[N] <= cs.pi/2)
+    opti.subject_to(alpha[N] >= -cs.pi/2)
 
-    opti.subject_to(alpha[N] <= -np.pi/6)
-    opti.subject_to(alpha[N] >= -np.pi/3)
+    # opti.subject_to(alpha[N] <= -np.pi/6)
+    # opti.subject_to(alpha[N] >= -np.pi/3)
 
     # Objective: minimize control effort
     objective = 0
-    objective += 20 * (T) ** 2  # Encourage shorter flight
+    objective +=  (T) ** 2  # Encourage shorter flight
     for k in range(N):
         total_thrust = f1[k] + f2[k] 
         upward_thrust_component = total_thrust * cs.cos(theta[k])
-        objective += f1[k] ** 2
-        objective += f2[k] ** 2
+        objective += 10 * f1[k] ** 2
+        objective += 10 * f2[k] ** 2
         objective += tau_arm[k] ** 2
     
     opti.minimize(objective)
@@ -172,9 +176,16 @@ def simulate_projectile(t_release, config_file="config.yaml"):
     dx = x_release
     dy = y_release
     angle_rad = np.arctan2(dy, dx)
-    alpha_release = np.pi/2 + theta_release - angle_rad
+    print("HERE")
+    print(phi_release)
+    if phi_release == 0:
+        alpha_release = np.pi/2 +  theta_release - angle_rad
+    elif phi_release > 0:
+        alpha_release = theta_release - angle_rad
+    elif phi_release < 0:
+        alpha_release = np.pi/2  + theta_release - angle_rad 
     
-    initial_state = np.array([x_release, y_release, theta_release, v_x, v_y, phi_dot_release, alpha_release, 0])
+    initial_state = np.array([x_release, y_release, theta_release+phi_release, v_x, v_y, phi_dot_release, alpha_release, 0])
     final_state = np.array([10, -1, 0, 0, 0, 0, 0, 0])
 
     # Optimize flight
@@ -217,7 +228,7 @@ def simulate_projectile(t_release, config_file="config.yaml"):
         alpha_values.append(state[6])
         control_values.append(control)
 
-        if state[1] < -1.5 * l or t > t_release + 10.0:
+        if t > t_release + 10.0:
             break
 
     print(len(t_values))
