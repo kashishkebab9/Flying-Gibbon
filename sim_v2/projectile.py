@@ -151,8 +151,7 @@ def flight_control(x0, xf, N=200, T_max=10.0, config_file="config.yaml"):
         return X_opt, U_opt, T_opt, dt_out
     except:
         print("Optimization failed. Check constraints and initial conditions.")
-        sys.exit()
-        return None, None, None
+        return [], [], [], []
 
 def simulate_projectile(t_release, config_file="config.yaml", release_state=None):
     config = load_config(config_file)
@@ -198,7 +197,7 @@ def simulate_projectile(t_release, config_file="config.yaml", release_state=None
     # Optimize flight
     X_opt, U_opt, T_opt, dt_opt = flight_control(initial_state, final_state, config_file=config_file)
     
-    if X_opt is None:
+    if len(X_opt) == 0:
         print("Flight control optimization failed.")
         return [], [], [], [], [], [], None
     

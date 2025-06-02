@@ -55,6 +55,7 @@ def visualize_simulation(filename, traj_output=None):
     t_pend, theta_vals, omega_vals, phi_values, phi_dot_values, t_release, pend_u_opt = simulate_pendulum()
     x_pend = [config_l * np.sin(theta) for theta in theta_vals]
     y_pend = [-config_l * np.cos(theta) for theta in theta_vals]
+    print(t_pend)
 
     if t_release is not None:
         release_index = np.argmin(np.abs(t_pend - t_release))

@@ -93,15 +93,19 @@ def pendulum_solve_traj(x0, xf, h=0.01, T_max=2.0, config_file="config.yaml"):
         return X_opt, U_opt, T_opt, N
     except RuntimeError:
         print("Optimization failed.")
-        sys.exit()
-        return None, None
+        return [], [], [], []
 
-def simulate_pendulum(config_file="config.yaml"):
+def simulate_pendulum(config_file="config.yaml", release_state=None):
     config = load_config(config_file)
     x0 = config["boundary_conditions"]["initial_state"]
-    xf = config["boundary_conditions"]["release_state"]
+    if release_state == None:
+        xf = config["boundary_conditions"]["release_state"]
+    else:
+        xf = release_state
     
     X_opt, U_opt, T_opt, N = pendulum_solve_traj(x0, xf)
+    if len(X_opt) == 0:
+        return [], [], [], [], [], [], []
 
     theta_values = X_opt[:, 0]
     omega_values = X_opt[:, 1]
