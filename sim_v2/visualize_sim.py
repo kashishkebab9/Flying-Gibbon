@@ -110,7 +110,7 @@ def visualize_simulation(filename, traj_output=None):
 
     writer = FFMpegWriter(fps=int(1 / dt), metadata=dict(artist='Trajectory Opt'), bitrate=1800)
     ani = FuncAnimation(fig1, update, frames=len(x_pend)+len(x_proj), interval=1000*dt, blit=True)
-    # ani.save("main.mp4", writer=writer)
+    ani.save("main.mp4", writer=writer)
 
     # Plot control inputs over time
     fig2, ax2 = plt.subplots(figsize=(10, 6))

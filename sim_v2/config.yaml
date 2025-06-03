@@ -21,7 +21,7 @@ physical_parameters:
 boundary_conditions:
   initial_state: [0.0, 0.0, 0.0, 0.0] # Theta, theta_dot, phi, phi_dot
   # release_state: [0.0, 3.0, -1.0, 0.0]
-  release_state: [0.05348875200636932, 0.82048505222649593,-1.561732304028097 , -0.1343707894359762]
+  release_state: [ 0.21651803185973328,  4.267359097730882, -1.4715781322407089, 1.8292567272275198]
 
 pendulum_optimization:
   damping: 0.1
