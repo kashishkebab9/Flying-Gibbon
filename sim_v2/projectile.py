@@ -182,8 +182,6 @@ def simulate_projectile(t_release, config_file="config.yaml", release_state=None
     dx = x_release
     dy = y_release
     angle_rad = np.arctan2(dy, dx)
-    print("HERE")
-    print(phi_release)
     if phi_release == 0:
         alpha_release = np.pi/2 +  theta_release - angle_rad
     elif phi_release > 0:

@@ -62,14 +62,11 @@ def visualize_simulation(filename, traj_output=None):
         omega_release = omega_vals[release_index]
         phi_release_vel = phi_dot_values[release_index]
         t_proj, x_proj, y_proj, theta_proj, alpha_values, proj_u_opt, proj_t_opt = simulate_projectile(t_release)
-        # print(x_proj[-1])
-        # print(y_proj[-1])
-        # print(alpha_values[-1])
-        # print(theta_proj[-1])
+        
     else:
         t_proj, x_proj, y_proj, theta_proj = [], [], [], []
 
-    release_index = int(np.where(t_pend == t_release)[0][0])
+    release_index = np.argmin(np.abs(t_pend - t_release)) 
     new_t_pend = t_pend[:release_index+1]
 
     
@@ -79,7 +76,6 @@ def visualize_simulation(filename, traj_output=None):
     min_len = min(control_output.shape[0], time_output.shape[0])
     control_output = control_output[:min_len]
     time_output = time_output[:min_len]
-
 
     def update(frame):
         if frame < len(x_pend):
@@ -111,7 +107,7 @@ def visualize_simulation(filename, traj_output=None):
 
     writer = FFMpegWriter(fps=int(1 / dt), metadata=dict(artist='Trajectory Opt'), bitrate=1800)
     ani = FuncAnimation(fig1, update, frames=len(x_pend)+len(x_proj), interval=1000*dt, blit=True)
-    # ani.save("main.mp4", writer=writer)
+    ani.save("main.mp4", writer=writer)
 
     # Plot control inputs over time
     fig2, ax2 = plt.subplots(figsize=(10, 6))

@@ -3,6 +3,12 @@ import yaml
 import numpy as np
 import sys
 
+def reduce_list(original_list, N):
+    if N >= len(original_list):
+        return original_list  # No reduction needed
+    indices = np.linspace(0, len(original_list) - 1, N, dtype=int)
+    return [original_list[i] for i in indices]
+
 def load_config(filename="config.yaml"):
     with open(filename, "r") as file:
         config = yaml.safe_load(file)
@@ -25,6 +31,7 @@ def pendulum_solve_traj(x0, xf, h=0.01, T_max=2.0, config_file="config.yaml"):
     # Decision variables
     T = opti.variable()
     N = int(T_max/h) # Number of frames
+    print(f"Number of Frames in Pendulum Solver: {N}")
     X = opti.variable(nx, N + 1)   # state trajectory
     U = opti.variable(nu, N)       # control trajectory
 
@@ -113,14 +120,26 @@ def simulate_pendulum(config_file="config.yaml", release_state=None):
     phi_dot_values = X_opt[:, 3]
     t_values = np.linspace(0, T_opt, N + 1)
 
+
+    print(f"Number of theta values: {len(theta_values)}")
+
     # Determine release time (first time theta crosses theta_release threshold)
     t_release = None
     for i, theta in enumerate(theta_values):
         if theta >= xf[0]:
             t_release = t_values[i]
             break
-    print(theta_values[-1])
-    print(phi_values[-1])
     print(f"T_release : {t_release}")
+    new_N = int(t_release / .01)
+    print(f"new_N: {new_N}")
+    theta_values = reduce_list(theta_values, new_N)
+    omega_values = reduce_list(omega_values, new_N)
+    phi_values = reduce_list(phi_values, new_N)
+    phi_dot_values = reduce_list(phi_dot_values, new_N)
+    t_values = np.linspace(0, T_opt, new_N + 1)
+
+
+
+
 
     return t_values, theta_values, omega_values, phi_values, phi_dot_values, t_release, U_opt
