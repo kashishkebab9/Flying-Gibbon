@@ -14,6 +14,7 @@ def load_config(filename="config.yaml"):
         config = yaml.safe_load(file)
     return config
 
+
 def pendulum_solve_traj(x0, xf, h=0.01, T_max=2.0, config_file="config.yaml"):
     config = load_config(config_file)
     
@@ -102,6 +103,8 @@ def pendulum_solve_traj(x0, xf, h=0.01, T_max=2.0, config_file="config.yaml"):
         print("Optimization failed.")
         return [], [], [], []
 
+
+
 def simulate_pendulum(config_file="config.yaml", release_state=None):
     config = load_config(config_file)
     x0 = config["boundary_conditions"]["initial_state"]
@@ -137,9 +140,5 @@ def simulate_pendulum(config_file="config.yaml", release_state=None):
     phi_values = reduce_list(phi_values, new_N)
     phi_dot_values = reduce_list(phi_dot_values, new_N)
     t_values = np.linspace(0, T_opt, new_N + 1)
-
-
-
-
 
     return t_values, theta_values, omega_values, phi_values, phi_dot_values, t_release, U_opt

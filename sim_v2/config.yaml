@@ -23,6 +23,10 @@ boundary_conditions:
   # release_state: [0.0, 3.0, -1.0, 0.0]
   release_state: [ 0.21651803185973328,  4.267359097730882, -1.4715781322407089, 1.8292567272275198]
 
+controller:
+  type: 1 # 0 - optimization based
+          # 1 - mppi based
+
 pendulum_optimization:
   damping: 0.1
   state_dimension: 4
