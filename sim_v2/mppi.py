@@ -38,35 +38,40 @@ def rk4_step(f, y, t, dt):
 
 # Initial conditions
 def simulate_hybrid_system(dt=.01):
-    y0 = [np.pi / 4, 0.0, 0.5, 0.0, 0, 0, 0, 0] # theta, theta_dot, phi, phi_dot
+    y0 = [-np.pi / 4, 0.0, 0.5, 0.0, 0, 0, 0, 0] # theta, theta_dot, phi, phi_dot
     t0 = 0.0
     tf = 2.0
     t_vals = np.arange(t0, tf, dt) # 0, 0.01, 0.02 ... tf
     y_vals = []
 
     y = np.array(y0)
+    i = 0
 
+    y_vals.append(y)
     attached = True
     detach_time = None
     for t in t_vals:
-        y_vals.append(y)
+        if y[1] > 1.0 and y[0] > .6:
+            print("Transitioning at t =", t)
+            theta, theta_dot, phi, phi_dot = y[0], y[1], y[2], y[3]
+            x_pos = L * np.sin(theta)
+            y_pos = -L * np.cos(theta)
+            x_dot = L * theta_dot * np.cos(theta)
+            y_dot = L * theta_dot * np.sin(theta)
+            alpha = phi
+            alpha_dot = phi_dot
+            y = np.array([x_pos, y_pos, theta, x_dot, y_dot, theta_dot, alpha, alpha_dot])
+            attached = False
+            detach_time = t
         if attached:
             y = rk4_step(pendulum_dynamics, y, t, dt)
+            i += 1
 
-            if y[1] < -1.0:
-                print("Transitioning at t =", t)
-                theta, theta_dot, phi, phi_dot = y[0], y[1], y[2], y[3]
-                x_pos = L * np.sin(theta)
-                y_pos = -L * np.cos(theta)
-                x_dot = L * theta_dot * np.cos(theta)
-                y_dot = L * theta_dot * np.sin(theta)
-                alpha = phi
-                alpha_dot = phi_dot
-                y = np.array([x_pos, y_pos, theta, x_dot, y_dot, theta_dot, alpha, alpha_dot])
-                attached = False
-                detach_time = t
         else:
             y = rk4_step(projectile_dynamics, y, t, dt)
+
+        if i != 1:
+            y_vals.append(y)
         
 
     y_vals = np.array(y_vals)

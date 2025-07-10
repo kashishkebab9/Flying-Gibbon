@@ -155,6 +155,7 @@ def visualize_simulation(filename, traj_output=None):
             else:
                 flight_frame = frame - switch_idx
                 x, y = x_flight[flight_frame], y_flight[flight_frame]
+                print(y)
                 theta = theta_flight[flight_frame]
                 alpha = alpha_flight[flight_frame]
 
