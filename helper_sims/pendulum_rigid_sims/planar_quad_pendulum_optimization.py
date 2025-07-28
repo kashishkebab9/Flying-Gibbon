@@ -5,6 +5,7 @@ import matplotlib.transforms as tr
 from scipy.optimize import minimize
 
 from matplotlib.animation import FFMpegWriter
+
 # === System Parameters ===
 L = 1.0
 body_w = 0.3
@@ -21,8 +22,8 @@ h = T / N
 nx = 4
 nu = 3
 
-x0 = np.array([0.0, 0.0, 0.0, 0.0])
-xf = np.array([np.pi, 0.0, 0.0, 0.0])
+x0 = np.array([0.0, 0.0, -np.pi/2, 0.0])
+xf = np.array([np.pi/2, 0.0, np.pi/2, 0.0])
 
 F_min, F_max = 0.0, 5.0  # Thrust bounds (N)
 tau_min, tau_max = -2.0, 2.0  # Torque bounds (Nm)
@@ -136,9 +137,9 @@ ani = FuncAnimation(fig, update, frames=N, init_func=init,
 plt.title("Optimized Trajectory: Pendulum with Actuated Body")
 plt.show()
 
-writer = FFMpegWriter(fps=int(1 / dt), metadata=dict(artist='Trajectory Opt'), bitrate=1800)
-ani.save("optimized_pendulum_trajectory.mp4", writer=writer)
-print("Video saved as optimized_pendulum_trajectory.mp4")
+# writer = FFMpegWriter(fps=int(1 / dt), metadata=dict(artist='Trajectory Opt'), bitrate=1800)
+# ani.save("optimized_pendulum_trajectory.mp4", writer=writer)
+# print("Video saved as optimized_pendulum_trajectory.mp4")
 
 def unpack_decision_variables(z):
     X = z[:N*nx].reshape((N, nx))
