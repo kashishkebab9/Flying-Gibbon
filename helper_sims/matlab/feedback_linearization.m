@@ -81,3 +81,4 @@ pretty(A)
 v_des = [3.14; 3.14/2]
 A_inv = pinv(A)
 u_out = A_inv * (v_des-b)
+

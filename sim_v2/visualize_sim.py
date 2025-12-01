@@ -8,7 +8,7 @@ from matplotlib.patches import Rectangle
 import matplotlib.transforms as tr
 from matplotlib.animation import FuncAnimation
 from matplotlib.animation import FFMpegWriter
-from mppi import simulate_hybrid_system
+from hybrid_dynamics import simulate_hybrid_system
 
 def visualize_simulation(filename, traj_output=None):
     # Load the YAML file
@@ -155,11 +155,10 @@ def visualize_simulation(filename, traj_output=None):
             else:
                 flight_frame = frame - switch_idx
                 x, y = x_flight[flight_frame], y_flight[flight_frame]
-                print(y)
                 theta = theta_flight[flight_frame]
                 alpha = alpha_flight[flight_frame]
 
-                rod.set_data([config_l * np.sin(theta+ alpha) + x, x], [-config_l * np.cos(theta + alpha) + y, y])
+                rod.set_data([config_l * np.cos(theta+ alpha) + x, x], [config_l * np.sin(theta + alpha) + y, y])
                 transform = tr.Affine2D().rotate_around(x, y, theta) + ax.transData
                 body_rect.set_xy((x - config_body_w / 2, y - config_body_h / 2))
                 body_rect.set_transform(transform)
@@ -167,11 +166,6 @@ def visualize_simulation(filename, traj_output=None):
                 # time_text.set_text(f"time: {t_proj[flight_frame]:.2f} s")
                 status_text.set_text("status: detached")
             return rod, body_rect, pendulum_path, projectile_path, time_text, status_text
-
-
-
-
-                
 
     if config_controller_type == 0:
         writer = FFMpegWriter(fps=int(1 / dt), metadata=dict(artist='Trajectory Opt'), bitrate=1800)

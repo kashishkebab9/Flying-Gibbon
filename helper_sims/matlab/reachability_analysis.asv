@@ -1,0 +1,29 @@
+% Reachability Analysis
+clear all; close all; clc;
+
+% System parameters
+g = 9.81;      % Gravity (m/s^2)
+l = 1;         % Length (m)
+m = 1;         % Mass (kg)
+I = 0.1;       % Moment of inertia (kg*m^2)
+
+% Define symbolic variables
+syms x1 x2 x3 x4 r real     % State variables
+syms F_l F_r tau_a real     % Inputs
+syms v1 v2 real             % New (virtual) inputs
+
+% State and input vectors
+x = [x1; x2; x3; x4];
+u = [F_l; F_r; tau_a];
+
+% System dynamics
+A = [x2;
+     -(g*sin(x1));
+     x4;
+     0];
+
+B =  [0,           0,           0;
+      -sin(x1-x3)/(m), -sin(x1-x3)/(m), 0;
+      0,           0,           0;
+      -r,           r,           I];
+% we need to linearize around a specific point
